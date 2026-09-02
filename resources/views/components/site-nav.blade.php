@@ -85,11 +85,19 @@
 
         <!-- Right Action Buttons -->
         <div class="flex items-center gap-2.5 shrink-0">
-            <a href="{{ route('login') }}"
-                class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap">
-                <i class="ti ti-user-shield text-base text-blue-400" aria-hidden="true"></i>
-                <span>Portal Login</span>
-            </a>
+            @auth
+                <a href="{{ route('admin.dashboard') }}"
+                    class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap">
+                    <i class="ti ti-layout-dashboard text-base text-blue-400" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}"
+                    class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap">
+                    <i class="ti ti-user-shield text-base text-blue-400" aria-hidden="true"></i>
+                    <span>Portal Login</span>
+                </a>
+            @endauth
 
             <!-- Toggle Search + Dropdown Panel (menggantikan tombol Kontak) -->
             <div class="relative">
@@ -360,11 +368,13 @@
 
                             const a = document.createElement('a');
                             a.href = item.url;
-                            a.className = `flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors ${isMobile ? 'hover:bg-slate-800 rounded-lg' : ''}`;
+                            a.className =
+                                `flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors ${isMobile ? 'hover:bg-slate-800 rounded-lg' : ''}`;
 
                             // Thumbnail / Icon container
                             const thumbDiv = document.createElement('div');
-                            thumbDiv.className = `w-11 h-11 rounded-lg ${isMobile ? 'bg-slate-800 text-blue-400' : 'bg-blue-50 text-blue-600'} flex items-center justify-center shrink-0 overflow-hidden`;
+                            thumbDiv.className =
+                                `w-11 h-11 rounded-lg ${isMobile ? 'bg-slate-800 text-blue-400' : 'bg-blue-50 text-blue-600'} flex items-center justify-center shrink-0 overflow-hidden`;
 
                             if (item.image) {
                                 const img = document.createElement('img');
@@ -386,12 +396,14 @@
                             textDiv.className = 'min-w-0';
 
                             const titleP = document.createElement('p');
-                            titleP.className = `text-sm font-semibold ${isMobile ? 'text-white' : 'text-slate-900'} truncate`;
+                            titleP.className =
+                                `text-sm font-semibold ${isMobile ? 'text-white' : 'text-slate-900'} truncate`;
                             titleP.textContent = item.title || '(tanpa judul)';
                             textDiv.appendChild(titleP);
 
                             const metaP = document.createElement('p');
-                            metaP.className = `text-[11px] ${isMobile ? 'text-slate-400' : 'text-slate-400'} mt-0.5`;
+                            metaP.className =
+                                `text-[11px] ${isMobile ? 'text-slate-400' : 'text-slate-400'} mt-0.5`;
 
                             // Tampilkan type badge + tanggal
                             if (item.type) {

@@ -162,7 +162,9 @@ Route::get('/fitur-baru', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.store');
+    Route::post('/login', [LoginController::class, 'login'])
+        ->name('login.store')
+        ->middleware('throttle:10,1'); // maksimal 10 request/menit ke endpoint ini
 });
 
 Route::middleware('auth')->group(function () {
@@ -205,10 +207,6 @@ Route::middleware(['auth', 'role:admin,operator'])
         // Manajemen Berita & Artikel
         Route::resource('posts', AdminPostController::class)->except(['show']);
 
-        // Manajemen Pengaturan Sekolah (Settings) - DIPERBAIKI
-        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-
         // Pesan Masuk — bisa diakses Admin & Operator
         Route::resource('messages', ContactMessageController::class)
             ->only(['index', 'show', 'destroy']);
@@ -242,7 +240,7 @@ Route::middleware(['auth', 'role:admin,operator'])
 
 /*
 |--------------------------------------------------------------------------
-| Area Admin SAJA — data sensitif (Kelola Pengguna)
+| Area Admin SAJA — data sensitif (Kelola Pengguna & Pengaturan Sistem)
 |--------------------------------------------------------------------------
 */
 
@@ -251,4 +249,8 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::resource('users', UserManagementController::class)->except(['show']);
+
+        // Manajemen Pengaturan Sekolah (Settings) — khusus Admin
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     });

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -31,18 +33,36 @@ class LoginController extends Controller
             'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
+        $throttleKey = $this->throttleKey($request);
+
+        // Cek apakah sudah terlalu banyak percobaan gagal
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $minutes = ceil($seconds / 60);
+
+            return back()->withErrors([
+                'email' => "Terlalu banyak percobaan gagal. Coba lagi dalam {$minutes} menit.",
+            ])->onlyInput('email');
+        }
+
         // Coba autentikasi
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            RateLimiter::clear($throttleKey); // reset hitungan gagal setelah berhasil
             $request->session()->regenerate();
 
-            // Redirect langsung ke area admin dashboard
             return redirect()->intended(route('admin.dashboard'))
                 ->with('success', 'Berhasil masuk ke sistem.');
         }
 
-        // Jika gagal, kembali dengan error
+        // Gagal login → catat percobaan
+        RateLimiter::hit($throttleKey, 60); // kunci 60 detik setelah limit tercapai
+
+        $remaining = RateLimiter::remaining($throttleKey, 5);
+
         return back()->withErrors([
-            'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+            'email' => $remaining > 0
+                ? 'Email atau kata sandi yang Anda masukkan salah.'
+                : 'Terlalu banyak percobaan gagal. Coba lagi dalam beberapa saat.',
         ])->onlyInput('email');
     }
 
@@ -58,5 +78,14 @@ class LoginController extends Controller
 
         return redirect('/login')
             ->with('success', 'Anda telah keluar dari sistem.');
+    }
+
+    /**
+     * Kunci unik untuk rate limiting — kombinasi email + IP,
+     * supaya penyerang tidak bisa lewat cuma dengan ganti-ganti email.
+     */
+    protected function throttleKey(Request $request): string
+    {
+        return Str::lower($request->input('email')) . '|' . $request->ip();
     }
 }

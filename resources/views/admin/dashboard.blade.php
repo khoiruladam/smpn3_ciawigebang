@@ -118,16 +118,18 @@
                 </div>
 
                 <!-- Quick Access -->
-                <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
-                    <h3 class="font-bold text-white mb-2 flex items-center gap-2">
-                        <i class="ti ti-settings"></i> Shortcut Admin
-                    </h3>
-                    <p class="text-blue-100 text-xs mb-4">Akses cepat ke pengaturan sistem.</p>
-                    <a href="{{ route('admin.settings.index') }}"
-                        class="block w-full text-center py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold transition-all">
-                        Buka Pengaturan
-                    </a>
-                </div>
+                @if (auth()->user()->role === 'admin')
+                    <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
+                        <h3 class="font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="ti ti-settings"></i> Shortcut Admin
+                        </h3>
+                        <p class="text-blue-100 text-xs mb-4">Akses cepat ke pengaturan sistem.</p>
+                        <a href="{{ route('admin.settings.index') }}"
+                            class="block w-full text-center py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold transition-all">
+                            Buka Pengaturan
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
