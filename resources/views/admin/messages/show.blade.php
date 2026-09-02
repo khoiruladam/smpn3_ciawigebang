@@ -27,11 +27,11 @@
                 @endif
             </div>
 
-            <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{{ $message->message }}</p>
+            <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line break-words">{{ $message->message }}</p>
 
             <div class="mt-8 pt-6 border-t border-slate-100 flex items-center gap-3">
                 @if (!$message->is_anonymous && $message->email)
-                    <a href="mailto:{{ $message->email }}"
+                    <a href="mailto:{{ e($message->email) }}"
                         class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all">
                         <i class="ti ti-mail" aria-hidden="true"></i> Balas via Email
                     </a>

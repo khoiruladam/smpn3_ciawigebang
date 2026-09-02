@@ -103,6 +103,24 @@
                         </div>
                     @endif
 
+                    {{-- Tampilkan pesan error validasi (misal honeypot terdeteksi / karakter tidak valid) --}}
+                    @if ($errors->any())
+                        <div
+                            class="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-sm shadow-2xs">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                                    <i class="ti ti-alert-circle text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="font-bold block text-xs uppercase tracking-wider text-red-700">Gagal
+                                        Mengirim</span>
+                                    <span class="text-xs sm:text-sm">{{ $errors->first() }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('contact.store') }}" class="space-y-4">
                         @csrf
 
@@ -123,6 +141,12 @@
                             </label>
                         </div>
 
+                        {{-- Honeypot Anti-Bot — jangan hapus, jangan beri type="hidden" --}}
+                        <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+                            <label for="website">Jangan diisi kolom ini</label>
+                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                        </div>
+
                         <!-- Input Identitas (Disembunyikan jika mode anonim aktif) -->
                         <div id="identity-fields"
                             class="grid grid-cols-1 sm:grid-cols-2 gap-4 transition-all duration-300">
@@ -132,6 +156,8 @@
                                     Nama Lengkap
                                 </label>
                                 <input type="text" id="contact-name" name="name" placeholder="Nama Anda"
+                                    value="{{ old('name') }}" maxlength="100" pattern="^[\p{L}\s\.\-']+$"
+                                    title="Nama hanya boleh berisi huruf, spasi, titik, atau strip"
                                     class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all">
                             </div>
 
@@ -141,6 +167,7 @@
                                     Alamat Email
                                 </label>
                                 <input type="email" id="contact-email" name="email" placeholder="nama@email.com"
+                                    value="{{ old('email') }}" maxlength="150"
                                     class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all">
                             </div>
                         </div>
@@ -151,13 +178,16 @@
                                 Pesan
                             </label>
                             <textarea id="contact-message" name="message" rows="5"
-                                placeholder="Tuliskan pesan, saran, atau pertanyaan Anda di sini..." required
-                                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all resize-none"></textarea>
+                                placeholder="Tuliskan pesan, saran, atau pertanyaan Anda di sini..." required minlength="5" maxlength="2000"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all resize-none">{{ old('message') }}</textarea>
+                            <p class="mt-1 text-[10px] text-slate-400 text-right">
+                                <span id="char-count">0</span>/2000 karakter
+                            </p>
                         </div>
 
                         <!-- Tombol Kirim -->
-                        <button type="submit"
-                            class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
+                        <button type="submit" id="submit-btn"
+                            class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-all inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                             <span>Kirim Pesan</span>
                             <i class="ti ti-send text-base" aria-hidden="true"></i>
                         </button>
@@ -220,6 +250,26 @@
                             emailInput.setAttribute('required', 'required');
                         }, 50);
                     }
+                });
+            }
+
+            // Script Hitung Karakter Pesan
+            const messageInput = document.getElementById('contact-message');
+            const charCount = document.getElementById('char-count');
+            if (messageInput && charCount) {
+                charCount.textContent = messageInput.value.length;
+                messageInput.addEventListener('input', function() {
+                    charCount.textContent = this.value.length;
+                });
+            }
+
+            // Script Cegah Submit Ganda (double-click) saat kirim pesan
+            const contactForm = messageInput ? messageInput.closest('form') : null;
+            const submitBtn = document.getElementById('submit-btn');
+            if (contactForm && submitBtn) {
+                contactForm.addEventListener('submit', function() {
+                    submitBtn.disabled = true;
+                    submitBtn.querySelector('span').textContent = 'Mengirim...';
                 });
             }
         });

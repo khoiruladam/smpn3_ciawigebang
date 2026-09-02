@@ -1,22 +1,26 @@
 {{-- resources/views/auth/login.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Login Portal — ' . config('app.name', 'SMPN 3 Ciawigebang'))
+@php
+    $schoolName = setting('school_name', 'SMPN 3 Ciawigebang');
+    $schoolLogo = setting('logo') ? Storage::url(setting('logo')) : asset('images/logo-sekolah.webp');
+    $loginBg = setting('bg_login') ? Storage::url(setting('bg_login')) : asset('images/sekolah-1.jpg');
+    $loginCardImg = setting('login_card_image')
+        ? Storage::url(setting('login_card_image'))
+        : asset('images/siswa-1.jpg');
+@endphp
+
+@section('title', 'Login Portal — ' . $schoolName)
 
 @section('content')
     <!-- Section Utama Background Halaman -->
     <section
         class="relative w-full min-h-screen flex items-center justify-center py-12 sm:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden z-25 bg-slate-950">
 
-        @php
-            // Mengambil path gambar dari database, jika kosong gunakan gambar default
-            $loginBg = setting('bg_login') ? Storage::url(setting('bg_login')) : asset('images/sekolah-1.jpg');
-        @endphp
-
         <!-- Background Lingkungan Sekolah -->
         <div class="absolute inset-0 z-0 overflow-hidden">
             <img src="{{ $loginBg }}" alt="Background Login"
-                class="w-full h-full object-cover object-center filter brightness-40" loading="eager">
+                class="w-full h-full object-cover object-center filter brightness-60" loading="eager">
             <div class="absolute inset-0 bg-slate-950/80"></div>
         </div>
 
@@ -27,12 +31,6 @@
             <!-- SISI KANAN / ATAS (Tampil di HP & Laptop): Foto Aktivitas Sekolah -->
             <div
                 class="w-full lg:w-1/2 relative bg-slate-900 overflow-hidden flex items-end p-6 sm:p-8 lg:p-10 min-h-[200px] sm:min-h-[240px] lg:min-h-full">
-                <!-- Foto Samping -->
-                @php
-                    $loginCardImg = setting('login_card_image')
-                        ? Storage::url(setting('login_card_image'))
-                        : asset('images/siswa-1.jpg');
-                @endphp
 
                 <!-- Gambar Card Login -->
                 <img src="{{ $loginCardImg }}" alt="Aktivitas Sekolah"
@@ -58,19 +56,19 @@
                 </div>
             </div>
 
-            <!-- SISI KIRI / BAWAH: Form Login & Identitas (Bentuk form asli dipertahankan tanpa perubahan) -->
+            <!-- SISI KIRI / BAWAH: Form Login & Identitas -->
             <div class="w-full lg:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-between bg-white relative">
 
                 <!-- Header Logo & Judul -->
                 <div>
                     <div class="flex items-center justify-between mb-6 sm:mb-8">
                         <a href="{{ route('home') }}" class="inline-flex items-center gap-2.5 group">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center drop-shadow-md">
-                                <img src="{{ asset('images/logo-sekolah.webp') }}" alt="Logo Sekolah"
-                                    class="w-full h-full object-contain">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center drop-shadow-md bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-1">
+                                <img src="{{ $schoolLogo }}" alt="Logo Sekolah" class="w-full h-full object-contain">
                             </div>
                             <span class="font-serif font-bold text-slate-900 text-sm sm:text-base tracking-tight">
-                                SMPN&nbsp;<span class="font-sans font-bold">3</span>&nbsp;Ciawigebang
+                                {{ $schoolName }}
                             </span>
                         </a>
 
@@ -127,7 +125,7 @@
                             </div>
                         </div>
 
-                        <!-- Input Password -->
+                        <!-- Input Password dengan Toggle -->
                         <div>
                             <label for="password" class="block text-xs font-semibold text-slate-700 mb-1">
                                 Kata Sandi
@@ -136,8 +134,14 @@
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                     <i class="ti ti-lock text-base"></i>
                                 </span>
+
                                 <input type="password" id="password" name="password" placeholder="••••••••" required
-                                    class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all">
+                                    class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600 outline-none text-slate-800 text-xs sm:text-sm transition-all">
+
+                                <button type="button" onclick="togglePasswordVisibility()"
+                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+                                    <i id="toggle-password-icon" class="ti ti-eye text-base"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -159,13 +163,32 @@
                     </form>
                 </div>
 
-                <!-- Footer Hak Cipta Sederhana -->
+                <!-- Footer Hak Cipta Dinamis -->
                 <div class="text-xs text-slate-400 text-center lg:text-left mt-8 pt-4 border-t border-slate-100">
-                    &copy; {{ date('Y') }} SMPN 3 Ciawigebang. Hak Cipta Dilindungi.
+                    &copy; {{ date('Y') }} {{ $schoolName }}. Hak Cipta Dilindungi.
                 </div>
 
             </div>
 
         </div>
     </section>
+
+    @push('scripts')
+        <script>
+            function togglePasswordVisibility() {
+                const passwordInput = document.getElementById('password');
+                const toggleIcon = document.getElementById('toggle-password-icon');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.classList.remove('ti-eye');
+                    toggleIcon.classList.add('ti-eye-off');
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.classList.remove('ti-eye-off');
+                    toggleIcon.classList.add('ti-eye');
+                }
+            }
+        </script>
+    @endpush
 @endsection

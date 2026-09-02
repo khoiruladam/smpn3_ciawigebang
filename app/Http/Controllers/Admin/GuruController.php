@@ -12,7 +12,8 @@ class GuruController extends Controller
     public function index()
     {
         $gurus = Guru::orderBy('sort_order', 'asc')->paginate(10);
-        return view('admin.guru.index', compact('gurus'));
+        $orderPreview = Guru::orderBy('sort_order', 'asc')->select(['id', 'name', 'sort_order'])->get();
+        return view('admin.guru.index', compact('gurus', 'orderPreview'));
     }
 
     public function create()
@@ -27,7 +28,7 @@ class GuruController extends Controller
             'jabatan' => 'required|string|max:255',
             'sub' => 'nullable|string|max:255',
             'category' => 'required|string|max:100',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'sort_order' => 'nullable|integer',
         ]);
 
@@ -55,7 +56,7 @@ class GuruController extends Controller
             'jabatan' => 'required|string|max:255',
             'sub' => 'nullable|string|max:255',
             'category' => 'required|string|max:100',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'sort_order' => 'nullable|integer',
         ]);
 
@@ -83,5 +84,19 @@ class GuruController extends Controller
         $guru->delete();
 
         return redirect()->route('admin.guru.index')->with('success', 'Data guru/staff berhasil dihapus.');
+    }
+
+    /**
+     * Simpan urutan baru dari drag-and-drop.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
+
+        foreach ($request->order as $index => $id) {
+            Guru::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

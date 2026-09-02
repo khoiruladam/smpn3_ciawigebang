@@ -1,7 +1,7 @@
 {{-- resources/views/welcome.blade.php --}}
 @extends('layouts.app')
 
-@section('title', config('app.name') . ' — Website Resmi Sekolah')
+@section('title', 'SMP Negeri 3 Ciawigebang')
 @section('meta_description',
     'Selamat datang di website resmi ' .
     config('app.name') .

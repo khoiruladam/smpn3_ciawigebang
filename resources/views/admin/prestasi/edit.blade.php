@@ -181,6 +181,8 @@
                 </div>
             </div>
         </div>
+
+        @include('admin.partials._seo-form', ['seo' => $prestasi->seo ?? null])
     </form>
 
     <!-- Hidden forms for deleting gallery images -->

@@ -9,7 +9,7 @@
         <!-- Background Gambar dengan Overlay Gelap -->
         <div class="absolute inset-0 z-0">
             <img src="{{ $bgGallery }}" alt="Background Galeri Sekolah"
-                class="w-full h-full object-cover object-center opacity-40" loading="lazy">
+                class="w-full h-full object-cover object-center opacity-80" loading="lazy">
             <div class="absolute inset-0 bg-slate-950/75"></div>
         </div>
 
@@ -42,8 +42,9 @@
                     @php
                         $imgUrl = Str::startsWith($foto->image, 'http') ? $foto->image : Storage::url($foto->image);
                     @endphp
-                    <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer"
-                        onclick="openLightbox('{{ $imgUrl }}', '{{ addslashes($foto->title) }}', '{{ addslashes($foto->caption) }}', '{{ $foto->category }}')">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer gallery-item"
+                        data-image="{{ $imgUrl }}" data-title="{{ $foto->title }}"
+                        data-caption="{{ $foto->caption }}" data-category="{{ $foto->category }}">
                         <div class="relative w-full h-52 bg-slate-900 overflow-hidden group">
                             <img src="{{ $imgUrl }}" alt="{{ $foto->title }}"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -77,11 +78,9 @@
 
     <!-- Lightbox Modal -->
     <div id="gallery-lightbox"
-        class="fixed inset-0 z-50 bg-slate-950/90 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity"
-        onclick="closeLightbox()">
-        <div class="relative max-w-3xl w-full bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800"
-            onclick="event.stopPropagation()">
-            <button onclick="closeLightbox()"
+        class="fixed inset-0 z-50 bg-slate-950/90 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="relative max-w-3xl w-full bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+            <button id="lightbox-close-btn"
                 class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition-colors cursor-pointer z-10">
                 <i class="ti ti-x text-lg"></i>
             </button>
@@ -99,3 +98,61 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightbox = document.getElementById('gallery-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxTitle = document.getElementById('lightbox-title');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const lightboxCategory = document.getElementById('lightbox-category');
+            const closeBtn = document.getElementById('lightbox-close-btn');
+            const galleryItems = document.querySelectorAll('.gallery-item');
+
+            function openLightbox(imageUrl, title, caption, category) {
+                lightboxImg.src = imageUrl;
+                lightboxImg.alt = title || '';
+                lightboxTitle.textContent = title || '';
+                lightboxCaption.textContent = caption || '';
+                lightboxCategory.textContent = category || '';
+
+                lightbox.classList.remove('hidden');
+                lightbox.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeLightbox() {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+                lightboxImg.src = '';
+            }
+
+            galleryItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    openLightbox(
+                        this.dataset.image,
+                        this.dataset.title,
+                        this.dataset.caption,
+                        this.dataset.category
+                    );
+                });
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+
+            // Tutup saat klik area gelap di luar modal card
+            if (lightbox) {
+                lightbox.addEventListener('click', function(e) {
+                    if (e.target === lightbox) closeLightbox();
+                });
+            }
+
+            // Tutup dengan tombol Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeLightbox();
+            });
+        });
+    </script>
+@endpush

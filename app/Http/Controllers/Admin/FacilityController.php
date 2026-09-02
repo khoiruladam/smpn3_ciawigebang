@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeoRequest;
 use App\Models\Facility;
 use App\Models\FacilityImage;
 use Illuminate\Http\Request;
@@ -14,8 +15,9 @@ class FacilityController extends Controller
     public function index()
     {
         $facilities = Facility::orderBy('sort_order')->paginate(10);
+        $orderPreview = Facility::orderBy('sort_order')->select(['id', 'name', 'sort_order'])->get();
 
-        return view('admin.facilities.index', compact('facilities'));
+        return view('admin.facilities.index', compact('facilities', 'orderPreview'));
     }
 
     public function create()
@@ -31,15 +33,17 @@ class FacilityController extends Controller
             'tag' => ['nullable', 'string', 'max:100'],
             'short_description' => ['required', 'string', 'max:500'],
             'description' => ['required', 'string'],
-            'cover_image' => ['required', 'image', 'max:2048'], // max 2MB
+            'cover_image' => ['required', 'image', 'max:1024'], // max 1MB
             'sort_order' => ['nullable', 'integer'],
             'gallery' => ['nullable', 'array'],
-            'gallery.*' => ['image', 'max:2048'],
+            'gallery.*' => ['image', 'max:1024'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['cover_image'] = $request->file('cover_image')->store('facilities', 'public');
         $validated['is_published'] = $request->boolean('is_published', true);
+
+        $request->validate(SeoRequest::seoRules());
 
         $facility = Facility::create($validated);
 
@@ -54,13 +58,15 @@ class FacilityController extends Controller
             }
         }
 
+        $facility->saveSeo($request);
+
         return redirect()->route('admin.facilities.index')
             ->with('success', 'Fasilitas berhasil ditambahkan.');
     }
 
     public function edit(Facility $facility)
     {
-        $facility->load('images');
+        $facility->load('images', 'seo');
 
         return view('admin.facilities.edit', compact('facility'));
     }
@@ -73,10 +79,10 @@ class FacilityController extends Controller
             'tag' => ['nullable', 'string', 'max:100'],
             'short_description' => ['required', 'string', 'max:500'],
             'description' => ['required', 'string'],
-            'cover_image' => ['nullable', 'image', 'max:2048'], // opsional saat update
+            'cover_image' => ['nullable', 'image', 'max:1024'], // opsional saat update
             'sort_order' => ['nullable', 'integer'],
             'gallery' => ['nullable', 'array'],
-            'gallery.*' => ['image', 'max:2048'],
+            'gallery.*' => ['image', 'max:1024'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -104,6 +110,9 @@ class FacilityController extends Controller
             }
         }
 
+        $request->validate(SeoRequest::seoRules());
+        $facility->saveSeo($request);
+
         return redirect()->route('admin.facilities.index')
             ->with('success', 'Fasilitas berhasil diperbarui.');
     }
@@ -130,5 +139,19 @@ class FacilityController extends Controller
         $image->delete();
 
         return back()->with('success', 'Foto berhasil dihapus.');
+    }
+
+    /**
+     * Simpan urutan baru dari drag-and-drop.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
+
+        foreach ($request->order as $index => $id) {
+            Facility::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

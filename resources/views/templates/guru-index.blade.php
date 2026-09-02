@@ -9,7 +9,7 @@
         <!-- Background Gambar dengan Overlay Gelap -->
         <div class="absolute inset-0 z-0">
             <img src="{{ $bgGuru }}" alt="Background Tenaga Pendidik"
-                class="w-full h-full object-cover object-center opacity-40" loading="lazy">
+                class="w-full h-full object-cover object-center opacity-80" loading="lazy">
             <div class="absolute inset-0 bg-slate-950/75"></div>
         </div>
 

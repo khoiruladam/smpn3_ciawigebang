@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Achievement extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSeo;
 
     protected $guarded = ['id'];
 
@@ -25,5 +26,10 @@ class Achievement extends Model
                 $model->slug = Str::slug($model->title);
             }
         });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 }

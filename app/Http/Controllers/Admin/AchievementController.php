@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeoRequest;
 use App\Models\Achievement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,8 @@ class AchievementController extends Controller
     public function index()
     {
         $achievements = Achievement::orderBy('sort_order')->paginate(10);
-        return view('admin.prestasi.index', compact('achievements'));
+        $orderPreview = Achievement::orderBy('sort_order')->select(['id', 'title', 'sort_order'])->get();
+        return view('admin.prestasi.index', compact('achievements', 'orderPreview'));
     }
 
     public function create()
@@ -30,8 +32,8 @@ class AchievementController extends Controller
             'icon' => 'required|string|max:50',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'cover_image' => 'required|image|max:2048',
-            'gallery.*' => 'nullable|image|max:2048',
+            'cover_image' => 'required|image|max:1024',
+            'gallery.*' => 'nullable|image|max:1024',
             'sort_order' => 'nullable|integer',
             'is_published' => 'nullable|boolean',
         ]);
@@ -50,13 +52,17 @@ class AchievementController extends Controller
         $validated['slug'] = Str::slug($request->title);
         $validated['is_published'] = $request->has('is_published');
 
-        Achievement::create($validated);
+        $request->validate(SeoRequest::seoRules());
+
+        $achievement = Achievement::create($validated);
+        $achievement->saveSeo($request);
 
         return redirect()->route('admin.prestasi.index')->with('success', 'Prestasi berhasil ditambahkan.');
     }
 
     public function edit(Achievement $prestasi)
     {
+        $prestasi->load('seo');
         return view('admin.prestasi.edit', compact('prestasi'));
     }
 
@@ -69,8 +75,8 @@ class AchievementController extends Controller
             'icon' => 'required|string|max:50',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'cover_image' => 'nullable|image|max:2048',
-            'gallery.*' => 'nullable|image|max:2048',
+            'cover_image' => 'nullable|image|max:1024',
+            'gallery.*' => 'nullable|image|max:1024',
             'sort_order' => 'nullable|integer',
             'is_published' => 'nullable|boolean',
         ]);
@@ -92,7 +98,10 @@ class AchievementController extends Controller
         $validated['slug'] = Str::slug($request->title);
         $validated['is_published'] = $request->has('is_published');
 
+        $request->validate(SeoRequest::seoRules());
+
         $prestasi->update($validated);
+        $prestasi->saveSeo($request);
 
         return redirect()->route('admin.prestasi.index')->with('success', 'Prestasi berhasil diperbarui.');
     }
@@ -120,5 +129,19 @@ class AchievementController extends Controller
             $prestasi->update(['gallery' => array_values($gallery)]);
         }
         return back()->with('success', 'Foto galeri berhasil dihapus.');
+    }
+
+    /**
+     * Simpan urutan baru dari drag-and-drop.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
+
+        foreach ($request->order as $index => $id) {
+            Achievement::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeoRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,13 +38,17 @@ class PostController extends Controller
             $data['image'] = $request->file('image')->store('posts', 'public');
         }
 
-        Post::create($data);
+        $request->validate(SeoRequest::seoRules());
+
+        $post = Post::create($data);
+        $post->saveSeo($request);
 
         return redirect()->route('admin.posts.index')->with('success', 'Berita & artikel berhasil diterbitkan.');
     }
 
     public function edit(Post $post)
     {
+        $post->load('seo');
         return view('admin.posts.edit', compact('post'));
     }
 
@@ -67,7 +72,10 @@ class PostController extends Controller
             $data['image'] = $request->file('image')->store('posts', 'public');
         }
 
+        $request->validate(SeoRequest::seoRules());
+
         $post->update($data);
+        $post->saveSeo($request);
 
         return redirect()->route('admin.posts.index')->with('success', 'Berita & artikel berhasil diperbarui.');
     }

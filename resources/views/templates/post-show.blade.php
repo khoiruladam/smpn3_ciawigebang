@@ -1,13 +1,48 @@
 @extends('layouts.app')
 
+@section('seo_meta')
+    @include('partials._seo-meta', ['seoModel' => $post])
+@endsection
+
+@push('styles')
+    {{-- JSON-LD Schema.org: NewsArticle --}}
+    <script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@@type": "NewsArticle",
+    "headline": "{{ $post->getSeoTitle() }}",
+    "description": "{{ $post->getSeoDescription() }}",
+    "image": "{{ $post->getOgImageUrl() ?? asset('images/sekolah-1.jpg') }}",
+    "datePublished": "{{ $post->created_at->toIso8601String() }}",
+    "dateModified": "{{ $post->updated_at->toIso8601String() }}",
+    "author": {
+        "@@type": "Organization",
+        "name": "SMP Negeri 3 Ciawigebang"
+    },
+    "publisher": {
+        "@@type": "Organization",
+        "name": "SMP Negeri 3 Ciawigebang",
+        "logo": {
+            "@@type": "ImageObject",
+            "url": "{{ asset('images/sekolah-1.jpg') }}"
+        }
+    },
+    "mainEntityOfPage": {
+        "@@type": "WebPage",
+        "@@id": "{{ route('berita.show', $post) }}"
+    }
+}
+</script>
+@endpush
+
 @section('content')
     <div class="min-h-screen bg-white pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
 
-            <!-- Tombol Kembali -->
-            <div class="mb-10">
+            <!-- Tombol Kembali - Gaya Classic Line -->
+            <div class="mb-10 border-b-2 border-slate-900 pb-4">
                 <a href="{{ url('/#berita') }}"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-bold rounded-xl transition-all">
+                    class="inline-flex items-center gap-2 text-slate-900 font-serif text-sm font-bold uppercase tracking-widest hover:underline decoration-2 underline-offset-4 transition-all">
                     <i class="ti ti-arrow-left"></i> Kembali
                 </a>
             </div>

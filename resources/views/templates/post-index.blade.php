@@ -17,7 +17,7 @@
             <!-- Tombol Kembali -->
             <div class="mb-8">
                 <a href="{{ url('/') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs sm:text-sm font-semibold rounded-xl backdrop-blur-md transition-all shadow-sm">
+                    class="inline-flex items-center gap-2 px-5 py-2 border-2 border-white text-white text-xs sm:text-sm font-bold uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors">
                     <i class="ti ti-arrow-left"></i> Kembali ke Beranda
                 </a>
             </div>
@@ -95,9 +95,17 @@
                 @endforelse
             </div>
 
-            <!-- Pagination -->
-            <div class="mt-12 text-white">
-                {{ $posts->links() }}
+            <!-- Pagination (Gaya Box Editorial) -->
+            <div class="mt-16 pt-10 border-t border-white/20 flex flex-col items-center">
+                <span class="text-slate-400 font-serif text-sm italic mb-5">
+                    Menelusuri halaman arsip warta...
+                </span>
+
+                <!-- Wrapper Pagination -->
+                <div
+                    class="bg-[#fbf9f5] border-2 border-slate-900 px-4 py-2 shadow-[4px_4px_0px_rgba(255,255,255,0.2)] max-w-full overflow-x-auto">
+                    {{ $posts->links() }}
+                </div>
             </div>
         </div>
     </div>

@@ -160,6 +160,8 @@
                 </div>
 
             </div>
+
+            @include('admin.partials._seo-form', ['seo' => $gallery->seo ?? null])
         </form>
     </div>
 

@@ -150,6 +150,8 @@
                 </div>
 
             </div>
+
+            @include('admin.partials._seo-form', ['seo' => $post->seo ?? null])
         </form>
     </div>
 

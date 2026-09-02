@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\HasSeo;
 use Illuminate\Database\Eloquent\Model;
 
 class Facility extends Model
 {
+    use HasSeo;
     protected $fillable = [
         'icon',
         'name',

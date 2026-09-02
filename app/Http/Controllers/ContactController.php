@@ -1,29 +1,27 @@
 <?php
+// app/Http/Controllers/ContactController.php
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ContactRequest;
 use App\Models\ContactMessage;
-use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    public function store(Request $request)
+    public function store(ContactRequest $request)
     {
         $isAnonymous = $request->boolean('is_anonymous');
-
-        $validated = $request->validate([
-            'name' => [$isAnonymous ? 'nullable' : 'required', 'string', 'max:255'],
-            'email' => [$isAnonymous ? 'nullable' : 'required', 'email', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
-        ]);
+        $validated = $request->validated();
 
         ContactMessage::create([
-            'name' => $isAnonymous ? null : $validated['name'],
+            'name' => $isAnonymous ? null : strip_tags($validated['name'] ?? ''),
             'email' => $isAnonymous ? null : $validated['email'],
             'is_anonymous' => $isAnonymous,
-            'message' => $validated['message'],
+            'message' => strip_tags($validated['message']),
         ]);
 
-        return redirect()->to(url()->previous() . '#kontak')->with('success', 'Pesan Anda berhasil dikirim! Terima kasih telah menghubungi kami.');
+        return redirect()
+            ->to(url()->previous() . '#kontak')
+            ->with('success', 'Pesan Anda berhasil dikirim! Terima kasih telah menghubungi kami.');
     }
 }

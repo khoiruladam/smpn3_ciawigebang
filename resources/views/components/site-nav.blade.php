@@ -91,11 +91,46 @@
                 <span>Portal Login</span>
             </a>
 
-            <a href="#kontak"
-                class="hidden sm:inline-flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg text-sm font-bold shadow-sm transition-all duration-200 whitespace-nowrap">
-                <i class="ti ti-phone-call text-base" aria-hidden="true"></i>
-                <span>Kontak</span>
-            </a>
+            <!-- Toggle Search + Dropdown Panel (menggantikan tombol Kontak) -->
+            <div class="relative">
+                <button type="button" id="nav-search-toggle"
+                    class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap"
+                    aria-expanded="false" aria-label="Buka Pencarian">
+                    <i class="ti ti-search text-base text-blue-400" aria-hidden="true"></i>
+                    <span>Cari</span>
+                </button>
+
+                {{-- Dropdown Panel Search (solid, tanpa efek glass/blur) --}}
+                <div id="nav-search-panel"
+                    class="hidden absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+                    <div class="p-3 border-b border-slate-100 bg-slate-50">
+                        <div class="relative">
+                            <i
+                                class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                            <input type="text" id="nav-search-input" autocomplete="off"
+                                placeholder="Cari berita, fasilitas, galeri, prestasi..."
+                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-2.5 border-b border-slate-100">
+                        <p id="nav-search-label" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            Berita Terbaru
+                        </p>
+                    </div>
+
+                    <ul id="nav-search-results" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                        {{-- Diisi via JavaScript (AJAX fetch) --}}
+                    </ul>
+
+                    <p id="nav-search-loading" class="hidden px-4 py-6 text-center text-sm text-slate-400">
+                        Memuat...
+                    </p>
+                    <p id="nav-search-empty" class="hidden px-4 py-6 text-center text-sm text-slate-400">
+                        Tidak ada hasil yang cocok.
+                    </p>
+                </div>
+            </div>
 
             <!-- Toggle Mobile Hamburger -->
             <button id="nav-toggle"
@@ -125,6 +160,22 @@
             class="w-8 h-8 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800 flex items-center justify-center transition-all">
             <i class="ti ti-x text-lg"></i>
         </button>
+    </div>
+
+    <!-- Search Bar di Mobile Drawer -->
+    <div class="p-4 border-b border-slate-800">
+        <div class="relative">
+            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-base"></i>
+            <input type="text" id="nav-search-input-mobile" autocomplete="off"
+                placeholder="Cari berita, fasilitas, galeri, prestasi..."
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500">
+        </div>
+        <ul id="nav-search-results-mobile" class="mt-2 max-h-56 overflow-y-auto divide-y divide-slate-800 hidden">
+            {{-- Diisi via JavaScript (AJAX fetch) --}}
+        </ul>
+        <p id="nav-search-empty-mobile" class="hidden mt-2 text-center text-xs text-slate-500 py-3">
+            Tidak ada hasil yang cocok.
+        </p>
     </div>
 
     <div class="flex-1 p-4 overflow-y-auto">
@@ -214,6 +265,174 @@
                     siteNav.classList.remove('shadow-lg', 'bg-slate-950/95');
                 }
             });
+
+            // ============================
+            // Toggle Search Panel (Desktop)
+            // ============================
+            const searchToggle = document.getElementById('nav-search-toggle');
+            const searchPanel = document.getElementById('nav-search-panel');
+            const searchInput = document.getElementById('nav-search-input');
+
+            function openSearchPanel() {
+                searchPanel.classList.remove('hidden');
+                searchToggle.setAttribute('aria-expanded', 'true');
+                searchInput.focus();
+                if (searchInput.value.trim() === '') {
+                    fetchSearchResults('', 'desktop');
+                }
+            }
+
+            function closeSearchPanel() {
+                searchPanel.classList.add('hidden');
+                searchToggle.setAttribute('aria-expanded', 'false');
+            }
+
+            if (searchToggle) {
+                searchToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (searchPanel.classList.contains('hidden')) {
+                        openSearchPanel();
+                    } else {
+                        closeSearchPanel();
+                    }
+                });
+            }
+
+            // Tutup panel saat klik di luar area
+            document.addEventListener('click', function(e) {
+                if (searchPanel && !searchPanel.contains(e.target) && e.target !== searchToggle) {
+                    closeSearchPanel();
+                }
+            });
+
+            // Tutup panel saat tekan Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeSearchPanel();
+            });
+
+            // ============================
+            // AJAX Live Search (Debounced)
+            // ============================
+            let debounceTimer = null;
+
+            function debounceSearch(query, context) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => fetchSearchResults(query, context), 350);
+            }
+
+            function fetchSearchResults(query, context) {
+                const isMobile = context === 'mobile';
+                const resultsEl = document.getElementById(isMobile ? 'nav-search-results-mobile' :
+                    'nav-search-results');
+                const emptyEl = document.getElementById(isMobile ? 'nav-search-empty-mobile' : 'nav-search-empty');
+                const loadingEl = document.getElementById('nav-search-loading'); // hanya ada di desktop
+                const labelEl = document.getElementById('nav-search-label'); // hanya ada di desktop
+
+                if (!isMobile && loadingEl) loadingEl.classList.remove('hidden');
+                if (!isMobile && resultsEl) resultsEl.classList.add('hidden');
+                if (emptyEl) emptyEl.classList.add('hidden');
+
+                fetch(`{{ route('search.quick') }}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!isMobile && loadingEl) loadingEl.classList.add('hidden');
+                        if (!isMobile && labelEl) {
+                            labelEl.textContent = query ? 'Hasil Pencarian' : 'Berita Terbaru';
+                        }
+
+                        if (!resultsEl) return;
+
+                        // Bersihkan hasil sebelumnya (aman — menghapus child nodes)
+                        while (resultsEl.firstChild) {
+                            resultsEl.removeChild(resultsEl.firstChild);
+                        }
+
+                        if (data.length === 0) {
+                            if (emptyEl) emptyEl.classList.remove('hidden');
+                            resultsEl.classList.add('hidden');
+                            return;
+                        }
+
+                        resultsEl.classList.remove('hidden');
+
+                        data.forEach(function(item) {
+                            const li = document.createElement('li');
+
+                            const a = document.createElement('a');
+                            a.href = item.url;
+                            a.className = `flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors ${isMobile ? 'hover:bg-slate-800 rounded-lg' : ''}`;
+
+                            // Thumbnail / Icon container
+                            const thumbDiv = document.createElement('div');
+                            thumbDiv.className = `w-11 h-11 rounded-lg ${isMobile ? 'bg-slate-800 text-blue-400' : 'bg-blue-50 text-blue-600'} flex items-center justify-center shrink-0 overflow-hidden`;
+
+                            if (item.image) {
+                                const img = document.createElement('img');
+                                img.src = item.image;
+                                img.alt = item.title || '';
+                                img.className = 'w-full h-full object-cover';
+                                thumbDiv.appendChild(img);
+                            } else {
+                                const icon = document.createElement('i');
+                                icon.className = 'ti ti-news text-lg';
+                                icon.setAttribute('aria-hidden', 'true');
+                                thumbDiv.appendChild(icon);
+                            }
+
+                            a.appendChild(thumbDiv);
+
+                            // Text container
+                            const textDiv = document.createElement('div');
+                            textDiv.className = 'min-w-0';
+
+                            const titleP = document.createElement('p');
+                            titleP.className = `text-sm font-semibold ${isMobile ? 'text-white' : 'text-slate-900'} truncate`;
+                            titleP.textContent = item.title || '(tanpa judul)';
+                            textDiv.appendChild(titleP);
+
+                            const metaP = document.createElement('p');
+                            metaP.className = `text-[11px] ${isMobile ? 'text-slate-400' : 'text-slate-400'} mt-0.5`;
+
+                            // Tampilkan type badge + tanggal
+                            if (item.type) {
+                                const typeBadge = document.createElement('span');
+                                typeBadge.className = 'font-bold uppercase tracking-wide mr-1.5';
+                                typeBadge.textContent = item.type;
+                                metaP.appendChild(typeBadge);
+                            }
+                            if (item.date) {
+                                const dateSpan = document.createElement('span');
+                                dateSpan.textContent = item.date;
+                                metaP.appendChild(dateSpan);
+                            }
+
+                            textDiv.appendChild(metaP);
+                            a.appendChild(textDiv);
+                            li.appendChild(a);
+                            resultsEl.appendChild(li);
+                        });
+                    })
+                    .catch(() => {
+                        if (!isMobile && loadingEl) loadingEl.classList.add('hidden');
+                        if (emptyEl) emptyEl.classList.remove('hidden');
+                    });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    debounceSearch(this.value.trim(), 'desktop');
+                });
+            }
+
+            // ============================
+            // Search Mobile (di dalam drawer)
+            // ============================
+            const searchInputMobile = document.getElementById('nav-search-input-mobile');
+            if (searchInputMobile) {
+                searchInputMobile.addEventListener('input', function() {
+                    debounceSearch(this.value.trim(), 'mobile');
+                });
+            }
         });
     </script>
 @endpush

@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="Panel Administrasi Internal — {{ config('app.name', 'Sistem Sekolah') }}">
     <title>@yield('title', 'Dashboard Admin') — {{ config('app.name', 'SMPN 3 Ciawigebang') }}</title>
 
@@ -18,6 +19,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- SortableJS CDN untuk drag-and-drop urutan tampil --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js" defer></script>
+    {{-- Kompresi gambar otomatis di sisi client --}}
+    <script src="{{ asset('js/image-compressor.js') }}" defer></script>
+
     @stack('styles')
 </head>
 
@@ -25,9 +32,8 @@
     class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
     @php
-        // Sementara di-hardcode dulu untuk preview UI — nanti ganti pakai auth()->user()->role
-        $currentRole = $currentRole ?? 'admin';
-        $isAdmin = $currentRole === 'admin';
+        // Mengecek role secara dinamis dari database user yang sedang login
+        $isAdmin = auth()->check() && auth()->user()->role === 'admin';
     @endphp
 
     <div class="min-h-screen flex flex-col lg:flex-row relative">
@@ -109,35 +115,38 @@
                         <span>Fasilitas</span>
                     </a>
 
-                    @if ($isAdmin)
-                        <div class="pt-5 pb-1 px-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            Administrasi
-                        </div>
+                    <div class="pt-5 pb-1 px-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Administrasi
+                    </div>
 
-                        <a href="{{ route('admin.ssk.index') }}"
-                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 transition-all">
-                            <i class="ti ti-file-text text-lg"></i>
-                            <span>Data SSK</span>
-                        </a>
+                    <!-- Data SSK (Bisa diakses Admin & Operator) -->
+                    <a href="{{ route('admin.ssk.index') }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl {{ request()->routeIs('admin.ssk.*') ? 'bg-blue-600 text-white shadow-md font-semibold' : 'hover:bg-slate-800 hover:text-white text-slate-300' }} transition-all">
+                        <i class="ti ti-file-text text-lg"></i>
+                        <span>Data SSK</span>
+                    </a>
 
-                        <a href="{{ route('admin.messages.index') }}"
-                            class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl {{ request()->routeIs('admin.messages.*') ? 'bg-blue-600 text-white shadow-md font-semibold' : 'hover:bg-slate-800 hover:text-white text-slate-300' }} transition-all">
-                            <span class="flex items-center gap-3">
-                                <i class="ti ti-mail text-lg"></i>
-                                <span>Pesan Masuk</span>
+                    <!-- Pesan Masuk (Bisa diakses Admin & Operator) -->
+                    <a href="{{ route('admin.messages.index') }}"
+                        class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl {{ request()->routeIs('admin.messages.*') ? 'bg-blue-600 text-white shadow-md font-semibold' : 'hover:bg-slate-800 hover:text-white text-slate-300' }} transition-all">
+                        <span class="flex items-center gap-3">
+                            <i class="ti ti-mail text-lg"></i>
+                            <span>Pesan Masuk</span>
+                        </span>
+
+                        <!-- Badge Angka Real-time -->
+                        @if (isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+                            <span
+                                class="text-[10px] font-bold bg-rose-500 text-white rounded-full px-2 py-0.5 animate-pulse">
+                                {{ $unreadMessagesCount }}
                             </span>
+                        @endif
+                    </a>
 
-                            <!-- Badge Angka Real-time -->
-                            @if (isset($unreadMessagesCount) && $unreadMessagesCount > 0)
-                                <span
-                                    class="text-[10px] font-bold bg-rose-500 text-white rounded-full px-2 py-0.5 animate-pulse">
-                                    {{ $unreadMessagesCount }}
-                                </span>
-                            @endif
-                        </a>
-
+                    <!-- HANYA ADMIN YANG BISA MELIHAT MENU DI BAWAH INI -->
+                    @if ($isAdmin)
                         <a href="{{ route('admin.settings.index') }}"
-                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 transition-all">
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white shadow-md font-semibold' : 'hover:bg-slate-800 hover:text-white text-slate-300' }} transition-all">
                             <i class="ti ti-settings text-lg"></i>
                             <span>Pengaturan Sekolah</span>
                         </a>
@@ -383,6 +392,62 @@
     @endpush
 
     @stack('scripts')
+
+    {{-- Inisialisasi SortableJS untuk preview urutan --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sortableEl = document.getElementById('sortable-preview');
+            if (sortableEl && typeof Sortable !== 'undefined') {
+                Sortable.create(sortableEl, {
+                    animation: 200,
+                    ghostClass: 'opacity-30',
+                    chosenClass: 'ring-2 ring-blue-400 shadow-lg',
+                    dragClass: 'rotate-2',
+                    onEnd: function() {
+                        // Ambil urutan baru
+                        var items = sortableEl.querySelectorAll('.sort-item');
+                        var order = [];
+                        items.forEach(function(item, index) {
+                            order.push(item.dataset.id);
+                            // Update nomor visual
+                            var numEl = item.querySelector('.sort-number');
+                            if (numEl) numEl.textContent = index + 1;
+                        });
+
+                        // Kirim ke server via AJAX
+                        var url = sortableEl.dataset.reorderUrl;
+                        var token = document.querySelector('meta[name="csrf-token"]');
+                        if (!token) {
+                            token = document.querySelector('input[name="_token"]');
+                            token = token ? token.value : '';
+                        } else {
+                            token = token.content;
+                        }
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ order: order })
+                        }).then(function(res) {
+                            if (res.ok) {
+                                var status = document.getElementById('sort-status');
+                                if (status) {
+                                    status.classList.remove('hidden');
+                                    setTimeout(function() { status.classList.add('hidden'); }, 2000);
+                                }
+                            }
+                        }).catch(function(err) {
+                            console.error('Reorder failed:', err);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

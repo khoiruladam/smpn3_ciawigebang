@@ -4,8 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="@yield('meta_description', config('app.name') . ' — Website resmi sekolah')">
-    <title>@yield('title', config('app.name'))</title>
+
+    {{-- SEO Meta Tags (title, description, OG, Twitter Card, canonical) --}}
+    @hasSection('seo_meta')
+        @yield('seo_meta')
+    @else
+        @include('partials._seo-meta', [
+            'seoTitle' => View::yieldContent('title', config('app.name')),
+            'seoDescription' => View::yieldContent('meta_description', config('app.name') . ' — Website resmi sekolah'),
+        ])
+    @endif
 
     <!-- Google Fonts & Tabler Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +26,26 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+
+    {{-- JSON-LD Schema.org: Organization --}}
+    <script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@@type": "EducationalOrganization",
+    "name": "SMP Negeri 3 Ciawigebang",
+    "alternateName": "SMPN 3 Ciawigebang",
+    "url": "{{ url('/') }}",
+    "logo": "{{ asset('images/sekolah-1.jpg') }}",
+    "description": "Website resmi SMP Negeri 3 Ciawigebang, Kabupaten Kuningan, Jawa Barat. Membentuk generasi cerdas, berkarakter unggul, dan berwawasan lingkungan.",
+    "address": {
+        "@@type": "PostalAddress",
+        "addressLocality": "Ciawigebang",
+        "addressRegion": "Jawa Barat",
+        "addressCountry": "ID"
+    },
+    "sameAs": []
+}
+</script>
 </head>
 
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white">

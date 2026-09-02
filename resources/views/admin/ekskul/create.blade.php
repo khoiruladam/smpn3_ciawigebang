@@ -133,6 +133,8 @@
                 </div>
             </div>
         </div>
+
+        @include('admin.partials._seo-form', ['seo' => null])
     </form>
 
     <!-- MODAL WARNING / ALERT CUSTOM -->

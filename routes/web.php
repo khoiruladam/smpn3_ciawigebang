@@ -63,6 +63,7 @@ Route::get('/fasilitas/{facility:slug}', function (Facility $facility) {
     if (!$facility->is_published) {
         abort(404);
     }
+    $facility->load('seo');
     return view('templates.show', [
         'item' => $facility,
         'type' => 'Fasilitas Sekolah',
@@ -75,6 +76,7 @@ Route::get('/ekskul/{ekskul:slug}', function (Ekskul $ekskul) {
     if (!$ekskul->is_published) {
         abort(404);
     }
+    $ekskul->load('seo');
     return view('templates.show', [
         'item' => $ekskul,
         'type' => 'Ekstrakurikuler',
@@ -87,6 +89,7 @@ Route::get('/prestasi/{prestasi:slug}', function (Achievement $prestasi) {
     if (!$prestasi->is_published) {
         abort(404);
     }
+    $prestasi->load('seo');
     return view('templates.show', [
         'item' => $prestasi,
         'type' => 'Prestasi & Penghargaan',
@@ -111,6 +114,7 @@ Route::get('/berita/{post:slug}', function (Post $post) {
     if (!$post->is_published) {
         abort(404);
     }
+    $post->load('seo');
     return view('templates.post-show', [
         'post' => $post,
         'recentPosts' => Post::where('is_published', true)->where('id', '!=', $post->id)->latest()->take(3)->get()
@@ -123,8 +127,33 @@ Route::get('/berita', function () {
     ]);
 })->name('berita.index');
 
-Route::post('/kontak', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/kontak', [ContactController::class, 'store'])
+    ->name('contact.store')
+    ->middleware(['throttle:3,1', 'throttle:10,1440']);
 
+Route::get('/pencarian-cepat', [App\Http\Controllers\SearchController::class, 'quick'])
+    ->name('search.quick')
+    ->middleware('throttle:30,1');
+
+/*
+|--------------------------------------------------------------------------
+| Sitemap XML Dinamis
+|--------------------------------------------------------------------------
+*/
+Route::get('/sitemap.xml', function () {
+    $posts = Post::where('is_published', true)->select('slug', 'updated_at')->latest()->get();
+    $ekskuls = Ekskul::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
+    $facilities = Facility::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
+    $achievements = Achievement::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
+
+    $content = view('partials._sitemap', compact('posts', 'ekskuls', 'facilities', 'achievements'))->render();
+
+    return response($content, 200)->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
+Route::get('/fitur-baru', function () {
+    return view('maintenance');
+});
 /*
 |--------------------------------------------------------------------------
 | Autentikasi
@@ -179,23 +208,12 @@ Route::middleware(['auth', 'role:admin,operator'])
         // Manajemen Pengaturan Sekolah (Settings) - DIPERBAIKI
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-    });
 
-/*
-|--------------------------------------------------------------------------
-| Area Admin SAJA — data sensitif
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth', 'role:admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::resource('users', UserManagementController::class)->except(['show']);
-
+        // Pesan Masuk — bisa diakses Admin & Operator
         Route::resource('messages', ContactMessageController::class)
             ->only(['index', 'show', 'destroy']);
 
+        // Data SSK — bisa diakses Admin & Operator
         Route::get('/ssk', [SskController::class, 'index'])->name('ssk.index');
 
         Route::prefix('ssk/stats')->name('ssk.stats.')->group(function () {
@@ -213,4 +231,24 @@ Route::middleware(['auth', 'role:admin'])
             Route::put('/{demographic}', [SskController::class, 'updateDemographic'])->name('update');
             Route::delete('/{demographic}', [SskController::class, 'destroyDemographic'])->name('destroy');
         });
+
+        // Reorder endpoint untuk drag-and-drop sort order
+        Route::post('facilities/reorder', [FacilityController::class, 'reorder'])->name('facilities.reorder');
+        Route::post('ekskul/reorder', [AdminEkskulController::class, 'reorder'])->name('ekskul.reorder');
+        Route::post('prestasi/reorder', [AdminAchievementController::class, 'reorder'])->name('prestasi.reorder');
+        Route::post('guru/reorder', [AdminGuruController::class, 'reorder'])->name('guru.reorder');
+        Route::post('gallery/reorder', [AdminGalleryController::class, 'reorder'])->name('gallery.reorder');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Area Admin SAJA — data sensitif (Kelola Pengguna)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('users', UserManagementController::class)->except(['show']);
     });

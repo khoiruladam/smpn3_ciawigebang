@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeoRequest;
 use App\Models\Ekskul;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,8 @@ class EkskulController extends Controller
     public function index()
     {
         $ekskuls = Ekskul::orderBy('sort_order')->paginate(10);
-        return view('admin.ekskul.index', compact('ekskuls'));
+        $orderPreview = Ekskul::orderBy('sort_order')->select(['id', 'name', 'sort_order'])->get();
+        return view('admin.ekskul.index', compact('ekskuls', 'orderPreview'));
     }
 
     public function create()
@@ -29,8 +31,8 @@ class EkskulController extends Controller
             'category' => 'nullable|string|max:100',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
+            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'sort_order' => 'nullable|integer',
             'is_published' => 'nullable|boolean',
         ]);
@@ -52,13 +54,17 @@ class EkskulController extends Controller
             $validated['gallery'] = $galleryPaths; // Disimpan sebagai array JSON (pastikan model di-cast array)
         }
 
-        Ekskul::create($validated);
+        $request->validate(SeoRequest::seoRules());
+
+        $ekskul = Ekskul::create($validated);
+        $ekskul->saveSeo($request);
 
         return redirect()->route('admin.ekskul.index')->with('success', 'Ekstrakurikuler baru berhasil ditambahkan.');
     }
 
     public function edit(Ekskul $ekskul)
     {
+        $ekskul->load('seo');
         return view('admin.ekskul.edit', compact('ekskul'));
     }
 
@@ -70,8 +76,8 @@ class EkskulController extends Controller
             'category' => 'nullable|string|max:100',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
+            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'sort_order' => 'nullable|integer',
         ]);
 
@@ -95,7 +101,10 @@ class EkskulController extends Controller
             $validated['gallery'] = array_slice($galleryPaths, 0, 6); // Batasi maksimal misal 6 foto total di database
         }
 
+        $request->validate(SeoRequest::seoRules());
+
         $ekskul->update($validated);
+        $ekskul->saveSeo($request);
 
         return redirect()->route('admin.ekskul.index')->with('success', "Data Ekstrakurikuler {$ekskul->name} berhasil diperbarui.");
     }
@@ -134,5 +143,19 @@ class EkskulController extends Controller
         }
 
         return back()->with('success', 'Satu foto galeri berhasil dihapus.');
+    }
+
+    /**
+     * Simpan urutan baru dari drag-and-drop.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
+
+        foreach ($request->order as $index => $id) {
+            Ekskul::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

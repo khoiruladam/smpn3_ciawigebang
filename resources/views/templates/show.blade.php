@@ -1,7 +1,8 @@
      @extends('layouts.app')
 
-     @section('title', ($item->name ?? 'Detail') . ' — ' . config('app.name'))
-     @section('meta_description', Str::limit(strip_tags($item->short_description ?? ''), 160))
+     @section('seo_meta')
+         @include('partials._seo-meta', ['seoModel' => $item])
+     @endsection
 
      @section('content')
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SeoRequest;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -38,13 +39,17 @@ class GalleryController extends Controller
             $data['image'] = $request->file('image')->store('gallery', 'public');
         }
 
-        Gallery::create($data);
+        $request->validate(SeoRequest::seoRules());
+
+        $gallery = Gallery::create($data);
+        $gallery->saveSeo($request);
 
         return redirect()->route('admin.gallery.index')->with('success', 'Dokumentasi galeri berhasil ditambahkan.');
     }
 
     public function edit(Gallery $gallery)
     {
+        $gallery->load('seo');
         return view('admin.gallery.edit', compact('gallery'));
     }
 
@@ -69,7 +74,10 @@ class GalleryController extends Controller
             $data['image'] = $request->file('image')->store('gallery', 'public');
         }
 
+        $request->validate(SeoRequest::seoRules());
+
         $gallery->update($data);
+        $gallery->saveSeo($request);
 
         return redirect()->route('admin.gallery.index')->with('success', 'Dokumentasi galeri berhasil diperbarui.');
     }
