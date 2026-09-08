@@ -26,7 +26,7 @@
         </a>
 
         <!-- Desktop Menu Links (Clean Solid Hover States) -->
-        <ul class="hidden xl:flex items-center gap-1 list-none m-0 p-0">
+        <ul class="hidden lg:flex items-center gap-1 list-none m-0 p-0">
             <li>
                 <a href="{{ url('/') }}"
                     class="px-3.5 py-1.5 rounded-lg text-sm font-semibold text-white bg-slate-800 border border-slate-700 transition-all whitespace-nowrap">
@@ -142,7 +142,7 @@
 
             <!-- Toggle Mobile Hamburger -->
             <button id="nav-toggle"
-                class="xl:hidden inline-flex flex-col justify-center items-center gap-1 w-10 h-10 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg p-2 cursor-pointer text-white transition-all duration-200"
+                class="lg:hidden inline-flex flex-col justify-center items-center gap-1 w-10 h-10 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg p-2 cursor-pointer text-white transition-all duration-200"
                 aria-label="Buka Menu">
                 <span class="w-full h-0.5 bg-white rounded-full transition-transform"></span>
                 <span class="w-full h-0.5 bg-white rounded-full transition-opacity"></span>

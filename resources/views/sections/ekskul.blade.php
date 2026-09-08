@@ -1,7 +1,9 @@
-{{-- resources/views/sections/ekskul.blade.php --}}
 @php
     // Background Ekstrakurikuler dinamis dari pengaturan admin (fallback ke siswa-1.jpg jika belum diatur)
     $bgEkskul = setting('bg_ekskul') ? Storage::url(setting('bg_ekskul')) : asset('images/siswa-1.jpg');
+    $allEkskul = collect($ekskulItems ?? []);
+    $ekskulDisplay = $allEkskul->take(3);
+    $hasMoreEkskul = $allEkskul->count() > 3;
 @endphp
 
 <!-- Section Full-Width Ekstrakurikuler (Padding Responsif untuk HP & Desktop) -->
@@ -36,14 +38,14 @@
             </p>
         </div>
 
-        <!-- Grid/Slider Kartu Ekskul dari Database -->
-        <div class="w-full overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 scrollbar-none">
+        <!-- Grid Kartu Ekskul dari Database -->
+        <div class="w-full">
             <div
-                class="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 w-max sm:w-full px-1 sm:px-0">
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 w-full">
 
-                @forelse ($ekskulItems ?? [] as $index => $e)
+                @forelse ($ekskulDisplay as $index => $e)
                     <a href="{{ route('ekskul.show', $e->slug) }}"
-                        class="reveal-card opacity-0 translate-y-8 transition-all duration-700 bg-slate-900 border border-slate-800/80 hover:border-slate-700 rounded-xl overflow-hidden shadow-md flex flex-col justify-between group hover:-translate-y-1 w-72 sm:w-auto shrink-0"
+                        class="reveal-card opacity-0 translate-y-8 transition-all duration-700 bg-slate-900 border border-slate-800/80 hover:border-slate-700 rounded-xl overflow-hidden shadow-md flex flex-col justify-between group hover:-translate-y-1 w-full"
                         style="transition-delay: {{ $index * 120 }}ms;">
 
                         <div>
@@ -104,6 +106,16 @@
 
             </div>
         </div>
+
+        @if ($hasMoreEkskul)
+            <div class="mt-8 text-center">
+                <a href="{{ route('ekskul.index') }}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+                    <span>Lihat Semua Ekstrakurikuler ({{ $allEkskul->count() }})</span>
+                    <i class="ti ti-external-link text-base"></i>
+                </a>
+            </div>
+        @endif
 
     </div>
 </section>

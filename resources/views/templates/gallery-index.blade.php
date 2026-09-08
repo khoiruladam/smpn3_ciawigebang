@@ -40,7 +40,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($fotos as $foto)
                     @php
-                        $imgUrl = Str::startsWith($foto->image, 'http') ? $foto->image : Storage::url($foto->image);
+                        $imgUrl = $foto->image ? (Str::startsWith($foto->image, 'http') ? $foto->image : Storage::url($foto->image)) : asset('images/siswa-1.jpg');
                     @endphp
                     <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer gallery-item"
                         data-image="{{ $imgUrl }}" data-title="{{ $foto->title }}"
@@ -87,7 +87,7 @@
             <div class="max-h-[60vh] bg-black flex items-center justify-center">
                 <img id="lightbox-img" src="" alt="" class="max-h-[60vh] w-auto object-contain">
             </div>
-            <div class="p-5 sm:p-6 bg-slate-900 border-t border-slate-800 space-y-2">
+            <div class="p-5 sm:p-6 bg-slate-900 border-t border-slate-800 space-y-2 max-h-[30vh] overflow-y-auto custom-scrollbar">
                 <div class="flex items-center gap-2">
                     <span id="lightbox-category"
                         class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase rounded border border-blue-500/30"></span>

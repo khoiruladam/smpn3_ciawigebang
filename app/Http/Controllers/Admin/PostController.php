@@ -31,7 +31,7 @@ class PostController extends Controller
             'body' => 'required|string',
         ]);
 
-        $data = $request->except('image');
+        $data = $request->only(['title', 'category', 'excerpt', 'body']);
         $data['is_published'] = $request->has('is_published') ? 1 : 0;
 
         if ($request->hasFile('image')) {
@@ -62,7 +62,7 @@ class PostController extends Controller
             'body' => 'required|string',
         ]);
 
-        $data = $request->except('image');
+        $data = $request->only(['title', 'category', 'excerpt', 'body']);
         $data['is_published'] = $request->has('is_published') ? 1 : 0;
 
         if ($request->hasFile('image')) {

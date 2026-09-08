@@ -85,7 +85,13 @@ class FacilityController extends Controller
             'gallery.*' => ['image', 'max:1024'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        if ($request->filled('slug')) {
+            $validated['slug'] = Str::slug($request->slug);
+        } elseif (empty($facility->slug)) {
+            $validated['slug'] = Str::slug($validated['name']);
+        } else {
+            unset($validated['slug']);
+        }
         $validated['is_published'] = $request->boolean('is_published', true);
 
         // Ganti cover cuma kalau upload file baru
@@ -119,15 +125,20 @@ class FacilityController extends Controller
 
     public function destroy(Facility $facility)
     {
-        // Hapus semua file fisik: cover + galeri
-        if ($facility->cover_image) {
-            Storage::disk('public')->delete($facility->cover_image);
-        }
-        foreach ($facility->images as $image) {
-            Storage::disk('public')->delete($image->image_path);
-        }
+        // Kumpulkan path file yang akan dihapus
+        $cover = $facility->cover_image;
+        $galleryPaths = $facility->images->pluck('image_path')->toArray();
 
-        $facility->delete(); // facility_images ikut kehapus otomatis (cascadeOnDelete di migration)
+        // Hapus dari database terlebih dahulu (facility_images ikut kehapus otomatis via cascadeOnDelete)
+        if ($facility->delete()) {
+            // Jika DB berhasil dihapus, hapus file fisiknya
+            if ($cover) {
+                Storage::disk('public')->delete($cover);
+            }
+            foreach ($galleryPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+        }
 
         return back()->with('success', 'Fasilitas berhasil dihapus.');
     }
@@ -148,9 +159,11 @@ class FacilityController extends Controller
     {
         $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
 
-        foreach ($request->order as $index => $id) {
-            Facility::where('id', $id)->update(['sort_order' => $index]);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $id) {
+                Facility::where('id', $id)->update(['sort_order' => $index]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }

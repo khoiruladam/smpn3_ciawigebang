@@ -55,7 +55,7 @@
                         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 block">
                             Kategori: {{ strtoupper($post->category) }}
                         </span>
-                        <h1 class="font-serif text-4xl md:text-6xl font-black text-slate-950 leading-tight tracking-tight">
+                        <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-950 leading-tight tracking-tight">
                             {{ $post->title }}
                         </h1>
                         <div class="mt-4 text-sm font-serif italic text-slate-600">

@@ -51,14 +51,11 @@
                                 class="inline-flex items-center justify-center w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
                                 <i class="ti ti-edit text-sm"></i>
                             </a>
-                            <form action="{{ route('admin.guru.destroy', $g) }}" method="POST" class="inline-block"
-                                onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                    class="inline-flex items-center justify-center w-8 h-8 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 cursor-pointer">
-                                    <i class="ti ti-trash text-sm"></i>
-                                </button>
-                            </form>
+                            <button type="button"
+                                onclick="openDeleteModal('{{ route('admin.guru.destroy', $g) }}', {{ \Illuminate\Support\Js::from($g->name) }})"
+                                class="inline-flex items-center justify-center w-8 h-8 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 cursor-pointer">
+                                <i class="ti ti-trash text-sm"></i>
+                            </button>
                         </td>
                     </tr>
                 @empty

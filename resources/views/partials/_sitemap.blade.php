@@ -7,14 +7,57 @@
         <priority>1.0</priority>
     </url>
 
-    {{-- Halaman Berita Index --}}
+    {{-- Halaman Index Berita --}}
     <url>
         <loc>{{ route('berita.index') }}</loc>
+        @if ($lastmodPost)
+        <lastmod>{{ $lastmodPost->toW3cString() }}</lastmod>
+        @endif
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
 
-    {{-- Halaman Galeri --}}
+    {{-- Halaman Index Fasilitas --}}
+    <url>
+        <loc>{{ route('facilities.index') }}</loc>
+        @if ($lastmodFacility)
+        <lastmod>{{ $lastmodFacility->toW3cString() }}</lastmod>
+        @endif
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    {{-- Halaman Index Ekstrakurikuler --}}
+    <url>
+        <loc>{{ route('ekskul.index') }}</loc>
+        @if ($lastmodEkskul)
+        <lastmod>{{ $lastmodEkskul->toW3cString() }}</lastmod>
+        @endif
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    {{-- Halaman Index Prestasi --}}
+    <url>
+        <loc>{{ route('prestasi.index') }}</loc>
+        @if ($lastmodAchievement)
+        <lastmod>{{ $lastmodAchievement->toW3cString() }}</lastmod>
+        @endif
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    {{-- Halaman Index Guru & Staff --}}
+    <url>
+        <loc>{{ route('guru.index') }}</loc>
+        @if ($lastmodGuru)
+        <lastmod>{{ $lastmodGuru->toW3cString() }}</lastmod>
+        @endif
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    {{-- Halaman Index Galeri --}}
     <url>
         <loc>{{ route('gallery.index') }}</loc>
         <changefreq>weekly</changefreq>

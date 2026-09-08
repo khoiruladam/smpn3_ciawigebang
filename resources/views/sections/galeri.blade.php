@@ -102,10 +102,10 @@
         <!-- Tombol Lihat Semua Galeri -->
         @if (isset($fotos) && $fotos->count() > 0)
             <div class="mt-10 text-center">
-                <a href="{{ route('gallery.index') }}"
+                <a href="{{ route('gallery.index') }}" target="_blank" rel="noopener noreferrer"
                     class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-md transition-all">
                     <span>Lihat Seluruh Galeri & Dokumentasi</span>
-                    <i class="ti ti-arrow-right"></i>
+                    <i class="ti ti-external-link text-base"></i>
                 </a>
             </div>
         @endif

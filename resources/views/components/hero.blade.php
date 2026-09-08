@@ -141,24 +141,39 @@
         </div>
     </div>
 
-    <!-- Floating Quick Features Bar Dinamis (Looping Data JSON) -->
-    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mb-12 sm:-mb-16">
-        <div
-            class="bg-white border border-slate-200/80 rounded-3xl shadow-2xl p-4 sm:p-8 grid grid-cols-2 md:grid-cols-{{ $gridCount <= 5 ? $gridCount : 5 }} gap-4 sm:gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+    <!-- Floating Quick Features Bar Dinamis (Diperbaiki agar rapi memanjang ke samping di Laptop dan bersih di Mobile) -->
+    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mb-6 sm:-mb-16">
+        @php
+            $count = count($features);
+            // Menentukan kelas grid secara dinamis dan aman berdasarkan jumlah data (maksimal 4 atau 5)
+            $gridClass = match (true) {
+                $count == 4 => 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+                $count == 3 => 'grid-cols-1 sm:grid-cols-3',
+                default => 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5',
+            };
+        @endphp
 
-            @foreach ($features as $feat)
-                <div class="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 {{ $loop->first ? '' : 'pt-4 md:pt-3' }}">
-                    <div
-                        class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-inner">
-                        <i class="ti {{ $feat['icon'] ?? 'ti-star' }}"></i>
+        <div class="bg-white border border-slate-200/80 rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8">
+
+            <!-- Grid disesuaikan secara presisi dengan jumlah item agar tidak ada sisa ruang kosong di kanan -->
+            <div class="grid {{ $gridClass }} gap-4 sm:gap-6 divide-y sm:divide-y-0 lg:divide-y-0 lg:divide-x divide-slate-100">
+                @foreach ($features as $feat)
+                    <div class="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-0 {{ $loop->first ? '' : 'lg:pl-6' }}">
+                        <div
+                            class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-inner">
+                            <i class="ti {{ $feat['icon'] ?? 'ti-star' }}"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 class="font-bold text-xs sm:text-base text-slate-900 leading-tight truncate">
+                                {{ $feat['title'] ?? '' }}
+                            </h4>
+                            <p class="text-[11px] sm:text-sm text-slate-500 mt-0.5 sm:mt-1 truncate">
+                                {{ $feat['desc'] ?? '' }}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-xs sm:text-base text-slate-900 leading-tight">
-                            {{ $feat['title'] ?? '' }}</h4>
-                        <p class="text-[11px] sm:text-sm text-slate-500 mt-0.5 sm:mt-1">{{ $feat['desc'] ?? '' }}</p>
-                    </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
 
         </div>
     </div>

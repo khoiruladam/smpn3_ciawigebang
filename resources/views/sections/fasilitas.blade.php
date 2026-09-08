@@ -3,7 +3,9 @@
      'fasilitas' => \App\Models\Facility::where('is_published', true)->orderBy('sort_order')->get(),
 --}}
 @php
-    $fasilitas = $fasilitas ?? collect([]);
+    $allFasilitas = $fasilitas ?? collect([]);
+    $fasilitasDisplay = $allFasilitas->take(3);
+    $hasMoreFasilitas = $allFasilitas->count() > 3;
 @endphp
 
 <section id="fasilitas" class="py-12 sm:py-20 md:py-28 bg-white relative z-20 border-t border-slate-200"
@@ -26,11 +28,11 @@
                     Sarana pendukung pembelajaran yang lengkap, kondusif, dan aman untuk mengoptimalkan potensi siswa.
                 </p>
 
-                @if ($fasilitas->count())
+                @if ($fasilitasDisplay->count())
                     <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3.5 sm:mt-4">
                         <span
                             class="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Tersedia:</span>
-                        @foreach ($fasilitas as $f)
+                        @foreach ($fasilitasDisplay as $f)
                             <span
                                 class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-slate-100 text-slate-700 text-[11px] sm:text-xs font-semibold border border-slate-200">
                                 {{ $f->name }}
@@ -40,12 +42,12 @@
                 @endif
             </div>
 
-            @if ($fasilitas->count())
+            @if ($allFasilitas->count())
                 <div
                     class="inline-flex items-center gap-3 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl shadow-sm shrink-0 self-start md:self-auto">
                     <div
                         class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs sm:text-sm">
-                        {{ $fasilitas->count() }}+
+                        {{ $allFasilitas->count() }}+
                     </div>
                     <div class="flex flex-col">
                         <span class="text-[11px] sm:text-xs font-bold text-slate-900">Fasilitas Utama</span>
@@ -55,10 +57,10 @@
             @endif
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            @forelse ($fasilitas as $index => $f)
-                {{-- Seluruh kartu jadi link ke halaman detail, buka tab baru --}}
-                <a href="{{ route('facilities.show', $f) }}" target="_blank" rel="noopener"
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            @forelse ($fasilitasDisplay as $index => $f)
+                {{-- Seluruh kartu jadi link ke halaman detail --}}
+                <a href="{{ route('facilities.show', $f) }}"
                     class="reveal-card opacity-0 translate-y-12 transition-all duration-700 ease-out group bg-slate-50 hover:bg-white border border-slate-200 hover:border-blue-400 rounded-2xl p-5 sm:p-6 md:p-8 shadow-sm hover:shadow-xl hover:-translate-y-1.5 flex flex-col justify-between"
                     style="transition-delay: {{ $index * 100 }}ms;">
 
@@ -101,6 +103,16 @@
                 </div>
             @endforelse
         </div>
+
+        @if ($hasMoreFasilitas)
+            <div class="mt-8 text-center">
+                <a href="{{ route('facilities.index') }}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+                    <span>Lihat Semua Fasilitas ({{ $allFasilitas->count() }})</span>
+                    <i class="ti ti-external-link text-base"></i>
+                </a>
+            </div>
+        @endif
 
     </div>
 </section>

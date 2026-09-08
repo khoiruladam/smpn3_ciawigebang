@@ -81,7 +81,13 @@ class EkskulController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        if ($request->filled('slug')) {
+            $validated['slug'] = Str::slug($request->slug);
+        } elseif (empty($ekskul->slug)) {
+            $validated['slug'] = Str::slug($validated['name']);
+        } else {
+            unset($validated['slug']);
+        }
         $validated['is_published'] = $request->has('is_published');
 
         // Update Cover
@@ -152,9 +158,11 @@ class EkskulController extends Controller
     {
         $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
 
-        foreach ($request->order as $index => $id) {
-            Ekskul::where('id', $id)->update(['sort_order' => $index]);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $id) {
+                Ekskul::where('id', $id)->update(['sort_order' => $index]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }

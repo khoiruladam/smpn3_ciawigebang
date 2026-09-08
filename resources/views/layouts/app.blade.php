@@ -27,25 +27,35 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 
-    {{-- JSON-LD Schema.org: Organization --}}
+    {{-- JSON-LD Schema.org: EducationalOrganization --}}
+    @php
+        $schemaLogo = setting('logo') ? Storage::url(setting('logo')) : asset('images/logo-sekolah.webp');
+        $schemaName = setting('school_name', config('app.name', 'SMP Negeri 3 Ciawigebang'));
+        $schemaDesc = setting('hero_description', 'Website resmi ' . $schemaName);
+        $schemaAddress = setting('footer_address', 'Ciawigebang, Kuningan, Jawa Barat');
+        $schemaPhone = setting('footer_phone', '');
+        $schemaEmail = setting('footer_email', '');
+    @endphp
     <script type="application/ld+json">
-{
-    "@@context": "https://schema.org",
-    "@@type": "EducationalOrganization",
-    "name": "SMP Negeri 3 Ciawigebang",
-    "alternateName": "SMPN 3 Ciawigebang",
-    "url": "{{ url('/') }}",
-    "logo": "{{ asset('images/sekolah-1.jpg') }}",
-    "description": "Website resmi SMP Negeri 3 Ciawigebang, Kabupaten Kuningan, Jawa Barat. Membentuk generasi cerdas, berkarakter unggul, dan berwawasan lingkungan.",
-    "address": {
-        "@@type": "PostalAddress",
-        "addressLocality": "Ciawigebang",
-        "addressRegion": "Jawa Barat",
-        "addressCountry": "ID"
-    },
-    "sameAs": []
-}
-</script>
+    {
+        "@@context": "https://schema.org",
+        "@@type": "EducationalOrganization",
+        "name": "{{ $schemaName }}",
+        "alternateName": "SMPN 3 Ciawigebang",
+        "url": "{{ url('/') }}",
+        "logo": "{{ $schemaLogo }}",
+        "description": "{{ addslashes($schemaDesc) }}",
+        "address": {
+            "@@type": "PostalAddress",
+            "streetAddress": "{{ addslashes($schemaAddress) }}",
+            "addressLocality": "Ciawigebang",
+            "addressRegion": "Jawa Barat",
+            "addressCountry": "ID"
+        }
+        @if ($schemaPhone) , "telephone": "{{ $schemaPhone }}" @endif
+        @if ($schemaEmail) , "email": "{{ $schemaEmail }}" @endif
+    }
+    </script>
 </head>
 
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white">
@@ -60,6 +70,7 @@
         <x-site-footer />
     @endunless
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('scripts')
 
     <!-- Global Scroll-Reveal & Chart Trigger Intersection Observer -->

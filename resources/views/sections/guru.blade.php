@@ -109,18 +109,18 @@
                                         ? (Str::startsWith($g->image, 'http')
                                             ? $g->image
                                             : Storage::url($g->image))
-                                        : 'https://via.placeholder.com/150';
+                                        : asset('images/siswa-1.jpg');
                                 @endphp
                                 <img src="{{ $guruImg }}" alt="{{ $g->name }}"
-                                    class="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover bg-slate-100 shrink-0 border border-slate-200"
+                                    class="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover bg-slate-100 shrink-0 border border-slate-200"
                                     loading="lazy" decoding="async">
                                 <div class="overflow-hidden text-left">
                                     <span
-                                        class="block text-[10px] font-bold text-blue-600 uppercase tracking-wide truncate">{{ $g->jabatan }}</span>
+                                        class="block text-[10px] sm:text-[11px] font-bold text-blue-600 uppercase tracking-wide truncate">{{ $g->jabatan }}</span>
                                     <h4
                                         class="font-serif text-xs sm:text-sm font-bold text-slate-900 truncate leading-snug">
                                         {{ $g->name }}</h4>
-                                    <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium truncate mt-0.5">
                                         {{ $g->sub ?? 'Pengajar' }}</p>
                                 </div>
                             </div>
@@ -130,10 +130,10 @@
 
                 <!-- TOMBOL LIHAT SEMUA GURU -->
                 <div class="mt-8 text-center">
-                    <a href="{{ route('guru.index') }}"
+                    <a href="{{ route('guru.index') }}" target="_blank" rel="noopener noreferrer"
                         class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-xs sm:text-sm rounded-xl backdrop-blur-md transition-all shadow-lg">
                         <span>Lihat Seluruh Jajaran Guru & Staff</span>
-                        <i class="ti ti-arrow-right"></i>
+                        <i class="ti ti-external-link text-base"></i>
                     </a>
                 </div>
             @endif

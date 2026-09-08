@@ -9,6 +9,7 @@
      <article class="bg-white min-h-screen">
           {{-- Hero Gambar Cover / Banner --}}
           @php
+               $itemTitle = $item->title ?? $item->name;
                $coverUrl = $item->cover_image ? Storage::url($item->cover_image) : null;
                // Menangani berbagai macam format atribut (category untuk ekskul, tag untuk fasilitas)
                $badgeText = $item->category ?? ($item->tag ?? $type);
@@ -18,7 +19,7 @@
 
           <div class="relative w-full h-56 sm:h-80 md:h-[380px] bg-slate-900">
                @if ($coverUrl)
-                    <img src="{{ $coverUrl }}" alt="{{ $item->name }}" class="w-full h-full object-cover opacity-80">
+                    <img src="{{ $coverUrl }}" alt="{{ $itemTitle }}" class="w-full h-full object-cover opacity-80">
                @else
                     <div class="w-full h-full flex items-center justify-center text-slate-500">
                          <i class="ti ti-photo text-5xl"></i>
@@ -36,7 +37,7 @@
                          </span>
                     @endif
                     <h1 class="font-serif text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">
-                         {{ $item->name }}
+                         {{ $itemTitle }}
                     </h1>
                </div>
           </div>
@@ -87,23 +88,7 @@
                          }
                          @endphp
 
-                         @if (count($galleryImages) > 0)
-                         <div class="mt-10 pt-6 border-t border-slate-100">
-                              <h2 class="font-serif text-lg sm:text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                   <i class="ti ti-photo-album text-blue-600"></i>
-                                   <span>Dokumentasi Kegiatan</span>
-                              </h2>
-                              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                   @foreach ($galleryImages as $image)
-                                        <figure
-                                             class="group aspect-4/3 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                                             <img src="{{ Storage::url($image) }}" alt="Galeri"
-                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                        </figure>
-                                   @endforeach
-                              </div>
-                         </div>
-                         @endif
+                         <x-image-gallery-limited :images="$galleryImages" title="Dokumentasi Kegiatan" :all-url="route('gallery.index')" />
                     </div>
 
                     <!-- KOLOM KANAN: SIDEBAR -->
@@ -122,7 +107,7 @@
                                    <div class="min-w-0 flex-1">
                                         <span class="block text-[11px] text-slate-400 font-medium">Nama
                                              {{ $type }}</span>
-                                        <span class="font-bold text-slate-900 truncate block">{{ $item->name }}</span>
+                                        <span class="font-bold text-slate-900 truncate block">{{ $itemTitle }}</span>
                                    </div>
                               </li>
                               <li class="flex items-center gap-3 text-slate-700">
@@ -150,7 +135,8 @@
 
                          // Menentukan rute berdasarkan jenis model
                          $isFacility = $item instanceof \App\Models\Facility;
-                         $routeTarget = $isFacility ? 'facilities.show' : 'ekskul.show';
+                         $isAchievement = $item instanceof \App\Models\Achievement;
+                         $routeTarget = $isFacility ? 'facilities.show' : ($isAchievement ? 'prestasi.show' : 'ekskul.show');
                          @endphp
 
                          @if ($otherItems->count() > 0)
@@ -166,6 +152,7 @@
                                              class="w-11 h-11 rounded-lg bg-slate-200 overflow-hidden border border-slate-200 shrink-0">
                                              @if ($other->cover_image)
                                                   <img src="{{ Storage::url($other->cover_image) }}"
+                                                       alt="{{ $other->title ?? $other->name }}"
                                                        class="w-full h-full object-cover">
                                              @else
                                                   <div
@@ -177,7 +164,7 @@
                                              <div class="min-w-0 flex-1">
                                              <h4
                                                   class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 truncate">
-                                                  {{ $other->name }}</h4>
+                                                  {{ $other->title ?? $other->name }}</h4>
                                              <p class="text-[11px] text-slate-400 truncate">
                                                   {{ $other->category ?? ($other->tag ?? 'Kegiatan Sekolah') }}</p>
                                              </div>

@@ -29,7 +29,7 @@
 
             <!-- KIRI: Google Maps & Informasi Kontak (6 Kolom) -->
             <div
-                class="reveal-card opacity-0 translate-y-8 transition-all duration-700 lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 md:p-8 shadow-xs flex flex-col justify-between space-y-6">
+                class="reveal-card opacity-0 translate-y-8 transition-all duration-700 lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8 shadow-xs flex flex-col justify-between space-y-6">
 
                 <div class="space-y-6">
                     <h3

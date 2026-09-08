@@ -92,4 +92,17 @@ class GalleryController extends Controller
 
         return redirect()->route('admin.gallery.index')->with('success', 'Dokumentasi galeri berhasil dihapus.');
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $id) {
+                Gallery::where('id', $id)->update(['sort_order' => $index]);
+            }
+        });
+
+        return response()->json(['success' => true]);
+    }
 }

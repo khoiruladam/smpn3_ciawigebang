@@ -95,7 +95,13 @@ class AchievementController extends Controller
             $validated['gallery'] = $currentGallery;
         }
 
-        $validated['slug'] = Str::slug($request->title);
+        if ($request->filled('slug')) {
+            $validated['slug'] = Str::slug($request->slug);
+        } elseif (empty($prestasi->slug)) {
+            $validated['slug'] = Str::slug($request->title);
+        } else {
+            unset($validated['slug']);
+        }
         $validated['is_published'] = $request->has('is_published');
 
         $request->validate(SeoRequest::seoRules());
@@ -138,9 +144,11 @@ class AchievementController extends Controller
     {
         $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
 
-        foreach ($request->order as $index => $id) {
-            Achievement::where('id', $id)->update(['sort_order' => $index]);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $id) {
+                Achievement::where('id', $id)->update(['sort_order' => $index]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }

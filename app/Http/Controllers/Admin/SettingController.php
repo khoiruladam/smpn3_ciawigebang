@@ -23,6 +23,16 @@ class SettingController extends Controller
      */
     public function update(Request $request)
     {
+        $request->validate([
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'bg_login' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'login_card_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'bg_hero' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'bg_guru' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'bg_ssk' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'bg_ekskul' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+        ]);
+
         // Hapus cache settings agar perubahan langsung terlihat di halaman publik
         Cache::forget('app_settings');
 

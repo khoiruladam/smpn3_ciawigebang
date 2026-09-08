@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SettingController; // <-- Controller Setting
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AchievementController;
 use App\Models\SskStat;
 use App\Models\SskDemographic;
 use App\Models\Facility;
@@ -63,7 +64,7 @@ Route::get('/fasilitas/{facility:slug}', function (Facility $facility) {
     if (!$facility->is_published) {
         abort(404);
     }
-    $facility->load('seo');
+    $facility->load(['images', 'seo']);
     return view('templates.show', [
         'item' => $facility,
         'type' => 'Fasilitas Sekolah',
@@ -84,19 +85,6 @@ Route::get('/ekskul/{ekskul:slug}', function (Ekskul $ekskul) {
         'backLabel' => 'Kembali ke Ekstrakurikuler'
     ]);
 })->name('ekskul.show');
-
-Route::get('/prestasi/{prestasi:slug}', function (Achievement $prestasi) {
-    if (!$prestasi->is_published) {
-        abort(404);
-    }
-    $prestasi->load('seo');
-    return view('templates.show', [
-        'item' => $prestasi,
-        'type' => 'Prestasi & Penghargaan',
-        'backUrl' => url('/#prestasi'),
-        'backLabel' => 'Kembali ke Prestasi'
-    ]);
-})->name('prestasi.show');
 
 Route::get('/guru-staff', function () {
     return view('templates.guru-index', [
@@ -135,6 +123,21 @@ Route::get('/pencarian-cepat', [App\Http\Controllers\SearchController::class, 'q
     ->name('search.quick')
     ->middleware('throttle:30,1');
 
+Route::get('/fasilitas', function () {
+    return view('templates.facility-index', [
+        'facilities' => Facility::where('is_published', true)->orderBy('sort_order', 'asc')->get(),
+    ]);
+})->name('facilities.index');
+
+Route::get('/ekskul', function () {
+    return view('templates.ekskul-index', [
+        'ekskuls' => Ekskul::where('is_published', true)->orderBy('sort_order', 'asc')->get(),
+    ]);
+})->name('ekskul.index');
+
+Route::get('/prestasi', [AchievementController::class, 'index'])->name('prestasi.index');
+Route::get('/prestasi/{prestasi:slug}', [AchievementController::class, 'show'])->name('prestasi.show');
+
 /*
 |--------------------------------------------------------------------------
 | Sitemap XML Dinamis
@@ -145,8 +148,18 @@ Route::get('/sitemap.xml', function () {
     $ekskuls = Ekskul::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
     $facilities = Facility::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
     $achievements = Achievement::where('is_published', true)->select('slug', 'updated_at')->orderBy('sort_order')->get();
+    $gurus = Guru::where('is_published', true)->select('updated_at')->orderBy('sort_order')->get();
 
-    $content = view('partials._sitemap', compact('posts', 'ekskuls', 'facilities', 'achievements'))->render();
+    $lastmodPost = $posts->first()?->updated_at;
+    $lastmodEkskul = $ekskuls->first()?->updated_at;
+    $lastmodFacility = $facilities->first()?->updated_at;
+    $lastmodAchievement = $achievements->first()?->updated_at;
+    $lastmodGuru = $gurus->first()?->updated_at;
+
+    $content = view('partials._sitemap', compact(
+        'posts', 'ekskuls', 'facilities', 'achievements',
+        'lastmodPost', 'lastmodEkskul', 'lastmodFacility', 'lastmodAchievement', 'lastmodGuru'
+    ))->render();
 
     return response($content, 200)->header('Content-Type', 'application/xml');
 })->name('sitemap');

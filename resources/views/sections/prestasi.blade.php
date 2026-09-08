@@ -1,6 +1,10 @@
 {{-- resources/views/sections/prestasi.blade.php --}}
 @php
-    $prestasiList = $prestasiItems ?? [];
+    $prestasiAll = $prestasiItems ?? collect();
+    // Batasi maksimal hanya 3 item yang ditampilkan di section home
+    $prestasiList =
+        $prestasiAll instanceof \Illuminate\Support\Collection ? $prestasiAll->take(3) : collect($prestasiAll)->take(3);
+    $hasMorePrestasi = count($prestasiAll) > 3;
 @endphp
 
 <!-- Section Prestasi: Background Solid & Padding Responsif -->
@@ -70,8 +74,8 @@
             </div>
         @endif
 
-        <!-- Grid Kartu Highlight Prestasi -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+        <!-- Grid Kartu Highlight Prestasi (Maksimal 3 Item) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             @forelse ($prestasiList as $index => $p)
                 <a href="{{ route('prestasi.show', $p->slug) }}"
                     class="reveal-card opacity-0 translate-y-12 transition-all duration-700 ease-out group bg-slate-50 hover:bg-white border border-slate-200 hover:border-blue-400 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 flex flex-col justify-between"
@@ -139,19 +143,35 @@
             @endforelse
         </div>
 
+        <!-- Tombol Lihat Selengkapnya (Hanya muncul jika prestasi lebih dari 3) -->
+        @if ($hasMorePrestasi)
+            <div class="mt-10 sm:mt-12 text-center">
+                <a href="{{ route('prestasi.index') }}"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-blue-600 text-white font-semibold text-sm rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                    <span>Lihat Semua Prestasi</span>
+                    <i class="ti ti-arrow-right text-base"></i>
+                </a>
+            </div>
+        @endif
+
     </div>
 </section>
 
 @push('scripts')
     @if (!empty($chartYears) && count($chartYears) > 0)
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 let chartInstance = null;
 
                 function initPrestasiChart() {
                     const canvas = document.getElementById('prestasiYearlyChart');
-                    if (!canvas || chartInstance) return;
+                    if (!canvas) return;
+                    if (typeof Chart !== 'undefined') {
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                    }
 
                     const ctx = canvas.getContext('2d');
                     chartInstance = new Chart(ctx, {

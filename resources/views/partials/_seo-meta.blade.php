@@ -33,6 +33,7 @@
 {{-- Primary Meta Tags --}}
 <title>{{ $title }}</title>
 <meta name="description" content="{{ $description }}">
+<meta name="robots" content="{{ request()->is('admin*') || request()->is('login') ? 'noindex, nofollow' : 'index, follow' }}">
 @if ($keywords)
 <meta name="keywords" content="{{ $keywords }}">
 @endif

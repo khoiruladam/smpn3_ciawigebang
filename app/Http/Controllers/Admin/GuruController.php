@@ -93,9 +93,11 @@ class GuruController extends Controller
     {
         $request->validate(['order' => 'required|array', 'order.*' => 'integer']);
 
-        foreach ($request->order as $index => $id) {
-            Guru::where('id', $id)->update(['sort_order' => $index]);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $id) {
+                Guru::where('id', $id)->update(['sort_order' => $index]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }
