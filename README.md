@@ -16,13 +16,15 @@ Sistem ini merupakan hasil pengembangan proyek komersial yang hak gunanya dituju
 
 Setiap bentuk pelanggaran, penyalahgunaan, atau pencurian hak kekayaan intelektual atas perangkat lunak ini akan ditindak lanjuti sesuai dengan regulasi dan perundang-undangan hak cipta yang berlaku di Negara Kesatuan Republik Indonesia.
 
-## 📸 Antarmuka Sistem (Antisipasi Visual)
+## Antarmuka Sistem (Antisipasi Visual)
 
 *(Silakan tautkan tangkapan layar antarmuka sistem pada bagian ini)*
 
 || **Halaman Utama** | **Sistem & Statistik** | **Warta / Berita** |
 | :---: | :---: | :---: |
-| ![Landing Page](images/smp_3/landing_page1.png) | ![SSK](images/smp_3/smp_3_ssk.png) | ![Warta](images/smp_3/smp_3_warta.png) |
+![Landing Page](images/smp_3/landing_page1.png) | 
+![SSK](images/smp_3/smp_3_ssk.png) | 
+![Warta](images/smp_3/smp_3_warta.png) |
 
 ## Spesifikasi Fitur Utama
 
