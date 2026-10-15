@@ -20,8 +20,9 @@ Setiap bentuk pelanggaran, penyalahgunaan, atau pencurian hak kekayaan intelektu
 
 *(Silakan tautkan tangkapan layar antarmuka sistem pada bagian ini)*
 
-| **Halaman Utama & Portal Berita** | **Modul Galeri Interaktif** | 
-| `[images/smp_3/landing_page1.png]` | `[images/smp_3/smp_3_ssk.png]` | '[images/smp_3/smp_3_warta.png]'
+|| **Halaman Utama** | **Sistem & Statistik** | **Warta / Berita** |
+| :---: | :---: | :---: |
+| ![Landing Page](images/smp_3/landing_page1.png) | ![SSK](images/smp_3/smp_3_ssk.png) | ![Warta](images/smp_3/smp_3_warta.png) |
 
 ## Spesifikasi Fitur Utama
 
@@ -57,7 +58,7 @@ Pengembangan sistem ini didukung oleh infrastruktur teknologi berikut:
 
 Penggunaan, adopsi, atau replikasi sistem ini oleh institusi lain memerlukan izin lisensi tertulis dari pihak pengembang. Apabila Anda mewakili instansi yang membutuhkan sistem serupa atau bermaksud mengajukan penawaran kerja sama, silakan hubungi kontak representatif di bawah ini:
 
-* **Pengembang Utama / Agensi:** `[KHOIRUL ADA / ARTHAWARA]`
+* **Pengembang Utama / Agensi:** `[KHOIRUL ADAM / ARTHAWARA]`
 
 * **Surat Elektronik (Email):** `[arthawaraid@gmail.com]`
 
