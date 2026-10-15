@@ -1,58 +1,68 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Informasi & Portal Berita SMPN 3 Ciawigebang
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Dokumen ini merupakan penjabaran teknis dan administratif untuk **Sistem Informasi dan Portal Berita Resmi SMPN 3 Ciawigebang**. Sistem ini dirancang secara khusus untuk memenuhi kebutuhan publikasi informasi, dokumentasi kegiatan, serta pengelolaan konten digital institusi terkait.
 
-## About Laravel
+## Lisensi & Perlindungan Hak Cipta (PENTING)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**PROPRIETARY SOFTWARE - ALL RIGHTS RESERVED**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Sistem ini merupakan hasil pengembangan proyek komersial yang hak gunanya ditujukan secara eksklusif untuk klien **SMPN 3 Ciawigebang**. Berkenaan dengan hal tersebut, berlaku ketentuan hukum sebagai berikut:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Larangan Reproduksi:** Dilarang keras mengunduh, menyalin, menduplikasi, atau mereproduksi seluruh maupun sebagian kode sumber (*source code*), aset visual, dan basis data dari repositori ini.
 
-## Learning Laravel
+2. **Larangan Distribusi & Modifikasi:** Tidak diperkenankan untuk menjual, mendistribusikan ulang, atau melakukan modifikasi (*reverse engineering*) terhadap sistem ini untuk keperluan pribadi maupun komersial lainnya.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3. **Bukan Perangkat Lunak Terbuka:** Repositori ini **tidak** berlisensi *Open Source*. Kehadiran kode sumber di repositori ini (jika terlihat oleh publik) semata-mata untuk keperluan administrasi portofolio atau *deployment*, bukan untuk penggunaan umum.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Setiap bentuk pelanggaran, penyalahgunaan, atau pencurian hak kekayaan intelektual atas perangkat lunak ini akan ditindak lanjuti sesuai dengan regulasi dan perundang-undangan hak cipta yang berlaku di Negara Kesatuan Republik Indonesia.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 📸 Antarmuka Sistem (Antisipasi Visual)
 
-## Agentic Development
+*(Silakan tautkan tangkapan layar antarmuka sistem pada bagian ini)*
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+| **Halaman Utama & Portal Berita** | **Modul Galeri Interaktif** | 
+| `[images/smp_3/landing_page1.png]` | `[images/smp_3/smp_3_ssk.png]` | '[images/smp_3/smp_3_warta.png]'
 
-```bash
-composer require laravel/boost --dev
+## Spesifikasi Fitur Utama
 
-php artisan boost:install
-```
+Sistem ini dilengkapi dengan berbagai modul fungsional guna menunjang digitalisasi sekolah:
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+* **Sistem Manajemen Berita Terpadu:** Modul publikasi artikel dan pengumuman dengan antarmuka membaca bergaya koran digital, dilengkapi fitur *pagination* yang efisien.
 
-## Contributing
+* **Galeri Media Interaktif:** Dokumentasi visual berbasis *grid* dengan integrasi *Lightbox* untuk peninjauan foto beresolusi tinggi.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* **Arsitektur Responsif (*Mobile-Ready*):** Penyesuaian tata letak otomatis (*auto-layouting*) yang menjamin aksesibilitas optimal pada perangkat desktop, tablet, maupun telepon seluler.
 
-## Code of Conduct
+* **Mesin Pencari Internal:** Algoritma pencarian yang dioptimalkan untuk mempermudah penelusuran arsip berita dan pengumuman.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+* **Panel Administrator (CMS):** Dasbor manajemen konten yang komprehensif, dinamis, dan terotentikasi penuh untuk administrator sekolah.
 
-## Security Vulnerabilities
+## Tumpukan Teknologi (*Tech Stack*)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Pengembangan sistem ini didukung oleh infrastruktur teknologi berikut:
 
-## License
+* **Kerangka Kerja (*Framework*) Backend:** Laravel (PHP)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+* **Mesin Templat (*Templating Engine*):** Laravel Blade
+
+* **Struktur Frontend:** php, CSS3, JavaScript
+
+* **Kerangka Kerja Antarmuka:** Tailwind CSS / Bootstrap
+
+* **Manajemen Basis Data:** MySQL
+
+* **Ekstensi Media:** Lightbox.js
+
+## Informasi Kemitraan & Perizinan
+
+Penggunaan, adopsi, atau replikasi sistem ini oleh institusi lain memerlukan izin lisensi tertulis dari pihak pengembang. Apabila Anda mewakili instansi yang membutuhkan sistem serupa atau bermaksud mengajukan penawaran kerja sama, silakan hubungi kontak representatif di bawah ini:
+
+* **Pengembang Utama / Agensi:** `[KHOIRUL ADA / ARTHAWARA]`
+
+* **Surat Elektronik (Email):** `[arthawaraid@gmail.com]`
+
+* **Portofolio / Media Sosial:** `[https://khoiruladam.site.je/]`
+
+* **Klien Eksklusif:** SMPN 3 Ciawigebang, Kabupaten Kuningan, Jawa Barat
+
+*Dokumen ini diterbitkan secara otomatis dan diawasi oleh pengembang.*
